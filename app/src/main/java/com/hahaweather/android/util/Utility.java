@@ -3,9 +3,11 @@ package com.hahaweather.android.util;
 import android.text.InputFilter;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.hahaweather.android.db.City;
 import com.hahaweather.android.db.County;
 import com.hahaweather.android.db.Province;
+import com.hahaweather.android.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,7 +74,7 @@ public class Utility {
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
                     county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weatherId"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -81,6 +83,17 @@ public class Utility {
                 e.printStackTrace();
             }
         }return false;
+    }
+
+    public static Weather handleWeatherResponse(String response){
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }return null;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.hahaweather.android;
 
-import android.app.Fragment;
+import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -112,15 +113,21 @@ public class ChooseAreaFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        listView.setOnClickListener(new AdapterView.OnItemClickListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (currentLevel == LEVEL_PROVINCE){
                     selectedProvince = provinceList.get(position);
                     queryCities();
                 }else if (currentLevel == LEVEL_CITY){
-                    selectedCity == cityList.get(position);
+                    selectedCity = cityList.get(position);
                     queryCounties();
+                }else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -147,7 +154,7 @@ public class ChooseAreaFragment extends Fragment {
         if (provinceList.size() > 0){
             datalist.clear();
             for (Province province : provinceList){
-                datalist.add(province.getProvinceName())
+                datalist.add(province.getProvinceName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -196,8 +203,8 @@ public class ChooseAreaFragment extends Fragment {
         }else{
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
-            String address = "http://guolin.tech/api/china" + provinceCode + cityCode;
-            queryFromServer(address,"county"):
+            String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
+            queryFromServer(address,"county");
         }
     }
     /**
